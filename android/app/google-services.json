@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "429494554981",
+    "firebase_url": "https://clinic-inventory-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "clinic-inventory-app",
+    "storage_bucket": "clinic-inventory-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:429494554981:android:7cea9c358003fc0288518c",
+        "android_client_info": {
+          "package_name": "com.clinic.inventory"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQg970rmFN8yYsg6525B0L2PxEpz7qGXQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
