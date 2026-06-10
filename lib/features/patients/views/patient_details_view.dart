@@ -185,7 +185,7 @@ class PatientDetailsView extends StatelessWidget {
       children: [
         _buildInfoItem(Icons.phone_outlined, 'Phone Number', patient.phone),
         const SizedBox(height: AppDimensions.spaceM),
-        _buildInfoItem(Icons.wc_outlined, 'Gender', patient.gender),
+        _buildInfoItem(Icons.wc_outlined, 'Gender', patient.gender.trim().isEmpty ? 'Not Provided' : patient.gender),
         const SizedBox(height: AppDimensions.spaceM),
         _buildInfoItem(Icons.cake_outlined, 'Date of Birth', DateFormat('dd-MMM-yyyy').format(patient.dateOfBirth)),
       ],
@@ -198,7 +198,7 @@ class PatientDetailsView extends StatelessWidget {
       children: [
         _buildInfoItem(Icons.perm_identity_outlined, 'Age', '${patient.age} Years'),
         const SizedBox(height: AppDimensions.spaceM),
-        _buildInfoItem(Icons.location_on_outlined, 'Address', patient.address),
+        _buildInfoItem(Icons.location_on_outlined, 'Address', patient.address.trim().isEmpty ? 'Not Provided' : patient.address),
         const SizedBox(height: AppDimensions.spaceM),
         _buildInfoItem(Icons.calendar_month_outlined, 'Registration Date', DateFormat('dd-MMM-yyyy HH:mm').format(patient.registrationDate)),
       ],

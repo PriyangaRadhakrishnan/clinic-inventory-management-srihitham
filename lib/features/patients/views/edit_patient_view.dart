@@ -33,7 +33,7 @@ class _EditPatientViewState extends State<EditPatientView> {
     _phoneController = TextEditingController(text: widget.patient.phone);
     _addressController = TextEditingController(text: widget.patient.address);
     _selectedDob = widget.patient.dateOfBirth;
-    _selectedGender = widget.patient.gender;
+    _selectedGender = widget.patient.gender.isEmpty ? null : widget.patient.gender;
   }
 
   @override
@@ -73,7 +73,6 @@ class _EditPatientViewState extends State<EditPatientView> {
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedDob == null) return;
-    if (_selectedGender == null) return;
 
     setState(() {
       _submitting = true;
@@ -87,7 +86,7 @@ class _EditPatientViewState extends State<EditPatientView> {
       phone: _phoneController.text.trim(),
       address: _addressController.text.trim(),
       dateOfBirth: _selectedDob!,
-      gender: _selectedGender!,
+      gender: _selectedGender ?? '',
       age: age,
     );
 
@@ -384,7 +383,7 @@ class _EditPatientViewState extends State<EditPatientView> {
     return DropdownButtonFormField<String>(
       value: _selectedGender,
       decoration: InputDecoration(
-        labelText: 'Gender',
+        labelText: 'Select Gender (Optional)',
         prefixIcon: const Icon(Icons.wc_outlined, color: AppColors.primary),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppDimensions.radiusM)),
       ),
@@ -399,10 +398,6 @@ class _EditPatientViewState extends State<EditPatientView> {
           _selectedGender = newValue;
         });
       },
-      validator: (value) {
-        if (value == null) return 'Gender is required';
-        return null;
-      },
     );
   }
 
@@ -413,7 +408,7 @@ class _EditPatientViewState extends State<EditPatientView> {
       keyboardType: TextInputType.multiline,
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
-        labelText: 'Residential Address',
+        labelText: 'Residential Address (Optional)',
         alignLabelWithHint: true,
         prefixIcon: const Padding(
           padding: EdgeInsets.only(bottom: 36),
@@ -421,12 +416,6 @@ class _EditPatientViewState extends State<EditPatientView> {
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppDimensions.radiusM)),
       ),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return 'Residential address is required';
-        }
-        return null;
-      },
     );
   }
 }

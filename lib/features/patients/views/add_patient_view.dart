@@ -66,12 +66,6 @@ class _AddPatientViewState extends State<AddPatientView> {
       );
       return;
     }
-    if (_selectedGender == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select Gender')),
-      );
-      return;
-    }
 
     setState(() {
       _submitting = true;
@@ -85,7 +79,7 @@ class _AddPatientViewState extends State<AddPatientView> {
     final result = await patientProvider.addPatient(
       name: _nameController.text.trim(),
       age: age,
-      gender: _selectedGender!,
+      gender: _selectedGender ?? '',
       phone: _phoneController.text.trim(),
       dateOfBirth: _selectedDob!,
       address: _addressController.text.trim(),
@@ -322,7 +316,7 @@ class _AddPatientViewState extends State<AddPatientView> {
     return DropdownButtonFormField<String>(
       value: _selectedGender,
       decoration: InputDecoration(
-        labelText: 'Gender',
+        labelText: 'Select Gender (Optional)',
         prefixIcon: const Icon(Icons.wc_outlined, color: AppColors.primary),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppDimensions.radiusM)),
       ),
@@ -337,10 +331,6 @@ class _AddPatientViewState extends State<AddPatientView> {
           _selectedGender = newValue;
         });
       },
-      validator: (value) {
-        if (value == null) return 'Gender is required';
-        return null;
-      },
     );
   }
 
@@ -351,7 +341,7 @@ class _AddPatientViewState extends State<AddPatientView> {
       keyboardType: TextInputType.multiline,
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
-        labelText: 'Residential Address',
+        labelText: 'Residential Address (Optional)',
         alignLabelWithHint: true,
         prefixIcon: const Padding(
           padding: EdgeInsets.only(bottom: 36),
@@ -359,12 +349,6 @@ class _AddPatientViewState extends State<AddPatientView> {
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppDimensions.radiusM)),
       ),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return 'Residential address is required';
-        }
-        return null;
-      },
     );
   }
 }

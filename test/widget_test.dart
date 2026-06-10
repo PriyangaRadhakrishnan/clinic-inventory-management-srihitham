@@ -1,30 +1,83 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:clinic_inventory/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:clinic_inventory/features/patients/models/patient_model.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('PatientModel Tests', () {
+    test('PatientModel parses correctly with all fields provided', () {
+      final date = DateTime(1990, 5, 20);
+      final regDate = DateTime(2025, 1, 1);
+      final map = {
+        'patientId': 'SH20250001',
+        'name': 'John Doe',
+        'age': 34,
+        'gender': 'Male',
+        'phone': '1234567890',
+        'dateOfBirth': Timestamp.fromDate(date),
+        'address': '123 Main St',
+        'registrationDate': Timestamp.fromDate(regDate),
+      };
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      final patient = PatientModel.fromMap(map, 'doc_123');
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      expect(patient.id, 'doc_123');
+      expect(patient.patientId, 'SH20250001');
+      expect(patient.name, 'John Doe');
+      expect(patient.age, 34);
+      expect(patient.gender, 'Male');
+      expect(patient.phone, '1234567890');
+      expect(patient.dateOfBirth, date);
+      expect(patient.address, '123 Main St');
+      expect(patient.registrationDate, regDate);
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('PatientModel parses correctly when optional fields (gender, address) are missing (simulating legacy records)', () {
+      final date = DateTime(1990, 5, 20);
+      final regDate = DateTime(2025, 1, 1);
+      final map = {
+        'patientId': 'SH20250001',
+        'name': 'John Doe',
+        'age': 34,
+        // gender and address omitted
+        'phone': '1234567890',
+        'dateOfBirth': Timestamp.fromDate(date),
+        'registrationDate': Timestamp.fromDate(regDate),
+      };
+
+      final patient = PatientModel.fromMap(map, 'doc_123');
+
+      expect(patient.id, 'doc_123');
+      expect(patient.gender, '');
+      expect(patient.address, '');
+    });
+
+    test('PatientModel toMap contains correct keys and values', () {
+      final date = DateTime(1990, 5, 20);
+      final regDate = DateTime(2025, 1, 1);
+      final patient = PatientModel(
+        id: 'doc_123',
+        patientId: 'SH20250001',
+        name: 'John Doe',
+        age: 34,
+        gender: '',
+        phone: '1234567890',
+        dateOfBirth: date,
+        address: '',
+        registrationDate: regDate,
+      );
+
+      final map = patient.toMap();
+
+      expect(map['patientId'], 'SH20250001');
+      expect(map['name'], 'John Doe');
+      expect(map['age'], 34);
+      expect(map['gender'], '');
+      expect(map['phone'], '1234567890');
+      expect(map['dateOfBirth'], isA<Timestamp>());
+      expect((map['dateOfBirth'] as Timestamp).toDate(), date);
+      expect(map['address'], '');
+      expect(map['registrationDate'], isA<Timestamp>());
+      expect((map['registrationDate'] as Timestamp).toDate(), regDate);
+    });
   });
 }
