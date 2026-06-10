@@ -155,7 +155,7 @@ class PatientDetailsView extends StatelessWidget {
                   title: 'Visit History',
                   subtitle: 'Historical clinical notes, diagnostics & symptom evaluations',
                   icon: Icons.assignment_outlined,
-                  placeholderDesc: 'No visit history recorded yet. Add visits via the Visits module.',
+                  placeholderDesc: 'No visits recorded',
                 ),
                 const SizedBox(height: AppDimensions.spaceS),
                 _buildExpansionCard(

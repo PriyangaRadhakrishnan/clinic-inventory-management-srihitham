@@ -2,29 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class VisitModel {
   final String id;
-  final String visitId; // V1
+  final String visitId;
   final String patientId;
-  final String doctorId;
   final DateTime visitDate;
   final String symptoms;
   final String diagnosis;
-  final double consultationFee;
   final String prescriptionNotes;
-  final List<String> prescriptionImageUrls;
-  final String? linkedBillId;
+  final DateTime? followUpDate;
+  final DateTime createdAt;
 
   VisitModel({
     required this.id,
     required this.visitId,
     required this.patientId,
-    required this.doctorId,
     required this.visitDate,
     required this.symptoms,
     required this.diagnosis,
-    required this.consultationFee,
     required this.prescriptionNotes,
-    required this.prescriptionImageUrls,
-    this.linkedBillId,
+    this.followUpDate,
+    required this.createdAt,
   });
 
   factory VisitModel.fromMap(Map<String, dynamic> map, String documentId) {
@@ -32,14 +28,18 @@ class VisitModel {
       id: documentId,
       visitId: map['visitId'] ?? '',
       patientId: map['patientId'] ?? '',
-      doctorId: map['doctorId'] ?? '',
-      visitDate: (map['visitDate'] as Timestamp).toDate(),
+      visitDate: map['visitDate'] != null
+          ? (map['visitDate'] as Timestamp).toDate()
+          : DateTime.now(),
       symptoms: map['symptoms'] ?? '',
       diagnosis: map['diagnosis'] ?? '',
-      consultationFee: (map['consultationFee'] ?? 0.0).toDouble(),
       prescriptionNotes: map['prescriptionNotes'] ?? '',
-      prescriptionImageUrls: List<String>.from(map['prescriptionImageUrls'] ?? []),
-      linkedBillId: map['linkedBillId'],
+      followUpDate: map['followUpDate'] != null
+          ? (map['followUpDate'] as Timestamp).toDate()
+          : null,
+      createdAt: map['createdAt'] != null
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
     );
   }
 
@@ -47,14 +47,36 @@ class VisitModel {
     return {
       'visitId': visitId,
       'patientId': patientId,
-      'doctorId': doctorId,
       'visitDate': Timestamp.fromDate(visitDate),
       'symptoms': symptoms,
       'diagnosis': diagnosis,
-      'consultationFee': consultationFee,
       'prescriptionNotes': prescriptionNotes,
-      'prescriptionImageUrls': prescriptionImageUrls,
-      'linkedBillId': linkedBillId,
+      'followUpDate': followUpDate != null ? Timestamp.fromDate(followUpDate!) : null,
+      'createdAt': Timestamp.fromDate(createdAt),
     };
+  }
+
+  VisitModel copyWith({
+    String? id,
+    String? visitId,
+    String? patientId,
+    DateTime? visitDate,
+    String? symptoms,
+    String? diagnosis,
+    String? prescriptionNotes,
+    DateTime? followUpDate,
+    DateTime? createdAt,
+  }) {
+    return VisitModel(
+      id: id ?? this.id,
+      visitId: visitId ?? this.visitId,
+      patientId: patientId ?? this.patientId,
+      visitDate: visitDate ?? this.visitDate,
+      symptoms: symptoms ?? this.symptoms,
+      diagnosis: diagnosis ?? this.diagnosis,
+      prescriptionNotes: prescriptionNotes ?? this.prescriptionNotes,
+      followUpDate: followUpDate ?? this.followUpDate,
+      createdAt: createdAt ?? this.createdAt,
+    );
   }
 }
