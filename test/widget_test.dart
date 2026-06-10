@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:clinic_inventory/features/patients/models/patient_model.dart';
 import 'package:clinic_inventory/features/visits/models/visit_model.dart';
+import 'package:clinic_inventory/features/visits/views/visit_details_view.dart';
 
 void main() {
   group('PatientModel Tests', () {
@@ -93,7 +95,7 @@ void main() {
         'visitDate': Timestamp.fromDate(visitDate),
         'symptoms': 'Fever and cough',
         'diagnosis': 'Common cold',
-        'prescriptionNotes': 'Rest and hydration',
+        'doctorNotes': 'Drink warm fluids',
         'followUpDate': Timestamp.fromDate(followUpDate),
         'createdAt': Timestamp.fromDate(createdAt),
       };
@@ -106,7 +108,7 @@ void main() {
       expect(visit.visitDate, visitDate);
       expect(visit.symptoms, 'Fever and cough');
       expect(visit.diagnosis, 'Common cold');
-      expect(visit.prescriptionNotes, 'Rest and hydration');
+      expect(visit.doctorNotes, 'Drink warm fluids');
       expect(visit.followUpDate, followUpDate);
       expect(visit.createdAt, createdAt);
     });
@@ -120,7 +122,7 @@ void main() {
         'visitDate': Timestamp.fromDate(visitDate),
         'symptoms': 'Fever and cough',
         'diagnosis': 'Common cold',
-        'prescriptionNotes': 'Rest and hydration',
+        'doctorNotes': 'Drink warm fluids',
         'followUpDate': null,
         'createdAt': Timestamp.fromDate(createdAt),
       };
@@ -129,6 +131,26 @@ void main() {
 
       expect(visit.id, 'doc_visit_123');
       expect(visit.followUpDate, isNull);
+    });
+
+    test('VisitModel parses correctly when optional doctorNotes is missing (simulating legacy records)', () {
+      final visitDate = DateTime(2025, 2, 10, 10, 30);
+      final createdAt = DateTime(2025, 2, 10, 10, 35);
+      final map = {
+        'visitId': 'V20250001',
+        'patientId': 'SH20250001',
+        'visitDate': Timestamp.fromDate(visitDate),
+        'symptoms': 'Fever and cough',
+        'diagnosis': 'Common cold',
+        // doctorNotes omitted
+        'followUpDate': null,
+        'createdAt': Timestamp.fromDate(createdAt),
+      };
+
+      final visit = VisitModel.fromMap(map, 'doc_visit_123');
+
+      expect(visit.id, 'doc_visit_123');
+      expect(visit.doctorNotes, '');
     });
 
     test('VisitModel toMap contains correct keys and values', () {
@@ -142,7 +164,7 @@ void main() {
         visitDate: visitDate,
         symptoms: 'Fever and cough',
         diagnosis: 'Common cold',
-        prescriptionNotes: 'Rest and hydration',
+        doctorNotes: 'Drink warm fluids',
         followUpDate: followUpDate,
         createdAt: createdAt,
       );
@@ -155,11 +177,85 @@ void main() {
       expect((map['visitDate'] as Timestamp).toDate(), visitDate);
       expect(map['symptoms'], 'Fever and cough');
       expect(map['diagnosis'], 'Common cold');
-      expect(map['prescriptionNotes'], 'Rest and hydration');
+      expect(map['doctorNotes'], 'Drink warm fluids');
       expect(map['followUpDate'], isA<Timestamp>());
       expect((map['followUpDate'] as Timestamp).toDate(), followUpDate);
       expect(map['createdAt'], isA<Timestamp>());
       expect((map['createdAt'] as Timestamp).toDate(), createdAt);
+    });
+  });
+
+  group('VisitDetailsView Widget Tests', () {
+    testWidgets('displays all clinical visit details including Patient ID correctly', (WidgetTester tester) async {
+      final visit = VisitModel(
+        id: 'SH20250001_V0002',
+        visitId: 'V0002',
+        patientId: 'SH20250001',
+        visitDate: DateTime(2026, 6, 10),
+        symptoms: 'Mild head ache',
+        diagnosis: 'Migraine aura',
+        doctorNotes: 'Take medicine daily',
+        followUpDate: DateTime(2026, 6, 17),
+        createdAt: DateTime.now(),
+      );
+
+      await tester.pumpWidget(MaterialApp(
+        home: VisitDetailsView(visit: visit),
+      ));
+
+      // Verify header and basic info
+      expect(find.text('Visit Details'), findsOneWidget);
+      expect(find.text('Clinical Visit Details'), findsOneWidget);
+
+      // Verify Patient ID is displayed
+      expect(find.text('Patient ID'), findsOneWidget);
+      expect(find.text('SH20250001'), findsOneWidget);
+
+      // Verify Visit ID
+      expect(find.text('Visit ID'), findsOneWidget);
+      expect(find.text('V0002'), findsOneWidget);
+
+      // Verify Symptoms
+      expect(find.text('Symptoms'), findsOneWidget);
+      expect(find.text('Mild head ache'), findsOneWidget);
+
+      // Verify Diagnosis
+      expect(find.text('Diagnosis'), findsOneWidget);
+      expect(find.text('Migraine aura'), findsOneWidget);
+
+      // Verify Doctor Notes
+      expect(find.text('Doctor Notes'), findsOneWidget);
+      expect(find.text('Take medicine daily'), findsOneWidget);
+
+      // Verify Visit Date
+      expect(find.text('Visit Date'), findsOneWidget);
+      expect(find.text('10-Jun-2026'), findsOneWidget);
+
+      // Verify Follow-up Date
+      expect(find.text('Follow-up Date'), findsOneWidget);
+      expect(find.text('17-Jun-2026'), findsOneWidget);
+    });
+
+    testWidgets('displays placeholders when optional fields are empty or null', (WidgetTester tester) async {
+      final visit = VisitModel(
+        id: 'SH20250001_V0002',
+        visitId: 'V0002',
+        patientId: 'SH20250001',
+        visitDate: DateTime(2026, 6, 10),
+        symptoms: '',
+        diagnosis: '',
+        doctorNotes: '',
+        followUpDate: null,
+        createdAt: DateTime.now(),
+      );
+
+      await tester.pumpWidget(MaterialApp(
+        home: VisitDetailsView(visit: visit),
+      ));
+
+      // Verify empty field fallbacks/placeholders
+      expect(find.text('None recorded'), findsNWidgets(3)); // Symptoms, Diagnosis, Doctor Notes
+      expect(find.text('None scheduled'), findsOneWidget); // Follow-up Date
     });
   });
 }

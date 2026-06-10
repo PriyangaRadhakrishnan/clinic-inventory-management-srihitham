@@ -7,7 +7,7 @@ class VisitModel {
   final DateTime visitDate;
   final String symptoms;
   final String diagnosis;
-  final String prescriptionNotes;
+  final String doctorNotes;
   final DateTime? followUpDate;
   final DateTime createdAt;
 
@@ -18,7 +18,7 @@ class VisitModel {
     required this.visitDate,
     required this.symptoms,
     required this.diagnosis,
-    required this.prescriptionNotes,
+    required this.doctorNotes,
     this.followUpDate,
     required this.createdAt,
   });
@@ -33,7 +33,7 @@ class VisitModel {
           : DateTime.now(),
       symptoms: map['symptoms'] ?? '',
       diagnosis: map['diagnosis'] ?? '',
-      prescriptionNotes: map['prescriptionNotes'] ?? '',
+      doctorNotes: map['doctorNotes'] ?? '',
       followUpDate: map['followUpDate'] != null
           ? (map['followUpDate'] as Timestamp).toDate()
           : null,
@@ -50,7 +50,7 @@ class VisitModel {
       'visitDate': Timestamp.fromDate(visitDate),
       'symptoms': symptoms,
       'diagnosis': diagnosis,
-      'prescriptionNotes': prescriptionNotes,
+      'doctorNotes': doctorNotes,
       'followUpDate': followUpDate != null ? Timestamp.fromDate(followUpDate!) : null,
       'createdAt': Timestamp.fromDate(createdAt),
     };
@@ -63,7 +63,7 @@ class VisitModel {
     DateTime? visitDate,
     String? symptoms,
     String? diagnosis,
-    String? prescriptionNotes,
+    String? doctorNotes,
     DateTime? followUpDate,
     DateTime? createdAt,
   }) {
@@ -74,7 +74,7 @@ class VisitModel {
       visitDate: visitDate ?? this.visitDate,
       symptoms: symptoms ?? this.symptoms,
       diagnosis: diagnosis ?? this.diagnosis,
-      prescriptionNotes: prescriptionNotes ?? this.prescriptionNotes,
+      doctorNotes: doctorNotes ?? this.doctorNotes,
       followUpDate: followUpDate ?? this.followUpDate,
       createdAt: createdAt ?? this.createdAt,
     );
