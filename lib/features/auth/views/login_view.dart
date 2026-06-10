@@ -46,7 +46,7 @@ class _LoginViewState extends State<LoginView> {
   void _handleMockLogin(String role) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     await authProvider.signInAsMockUser(role);
-    if (mounted) {
+    if (mounted && authProvider.isAuthenticated) {
       Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
     }
   }

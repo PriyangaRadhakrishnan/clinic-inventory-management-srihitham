@@ -33,6 +33,28 @@ class PatientDetailsView extends StatelessWidget {
                 child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
               ),
             ];
+          } else if (visitProvider.error != null) {
+            visitChildren = [
+              const Divider(height: 1.0, color: AppColors.border),
+              Padding(
+                padding: const EdgeInsets.all(AppDimensions.spaceM),
+                child: Card(
+                  color: AppColors.errorContainer,
+                  margin: EdgeInsets.zero,
+                  child: ListTile(
+                    leading: const Icon(Icons.error_outline, color: AppColors.error),
+                    title: Text(
+                      visitProvider.error!,
+                      style: const TextStyle(color: AppColors.onErrorContainer),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.close, color: AppColors.error),
+                      onPressed: () => visitProvider.clearError(),
+                    ),
+                  ),
+                ),
+              ),
+            ];
           } else if (visitProvider.visits.isEmpty) {
             visitChildren = _buildPlaceholderChildren('No visits recorded');
           } else {

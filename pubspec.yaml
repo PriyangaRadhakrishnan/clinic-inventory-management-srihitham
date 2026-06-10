@@ -41,6 +41,7 @@ dependencies:
   provider: ^6.1.2
   google_fonts: ^6.2.1
   intl: ^0.20.2
+  firebase_storage: ^12.2.0
 
 dev_dependencies:
   flutter_test:
@@ -53,6 +54,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
   fake_cloud_firestore: ^3.1.0
+  firebase_storage_mocks: ^0.7.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

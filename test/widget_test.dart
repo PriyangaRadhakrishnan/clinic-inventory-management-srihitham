@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:clinic_inventory/features/patients/models/patient_model.dart';
 import 'package:clinic_inventory/features/visits/models/visit_model.dart';
 import 'package:clinic_inventory/features/visits/views/visit_details_view.dart';
+import 'package:clinic_inventory/features/prescriptions/models/prescription_model.dart';
 
 void main() {
   group('PatientModel Tests', () {
@@ -234,6 +235,10 @@ void main() {
       // Verify Follow-up Date
       expect(find.text('Follow-up Date'), findsOneWidget);
       expect(find.text('17-Jun-2026'), findsOneWidget);
+
+      // Verify Prescription History section and placeholder
+      expect(find.text('Prescription History'), findsOneWidget);
+      expect(find.text('No prescriptions recorded'), findsOneWidget);
     });
 
     testWidgets('displays placeholders when optional fields are empty or null', (WidgetTester tester) async {
@@ -256,6 +261,136 @@ void main() {
       // Verify empty field fallbacks/placeholders
       expect(find.text('None recorded'), findsNWidgets(3)); // Symptoms, Diagnosis, Doctor Notes
       expect(find.text('None scheduled'), findsOneWidget); // Follow-up Date
+
+      // Verify Prescription History section and placeholder
+      expect(find.text('Prescription History'), findsOneWidget);
+      expect(find.text('No prescriptions recorded'), findsOneWidget);
+    });
+  });
+
+  group('PrescriptionModel Tests', () {
+    test('PrescribedMedicine parses correctly from map', () {
+      final map = {
+        'medicineId': 'med_1',
+        'name': 'Aspirin',
+        'dosage': '1-0-1',
+        'duration': '5 days',
+        'instruction': 'After meals',
+      };
+      final med = PrescribedMedicine.fromMap(map);
+      expect(med.medicineId, 'med_1');
+      expect(med.name, 'Aspirin');
+      expect(med.dosage, '1-0-1');
+      expect(med.duration, '5 days');
+      expect(med.instruction, 'After meals');
+    });
+
+    test('PrescriptionModel parses typed prescription correctly with safe optional fields', () {
+      final date = DateTime(2026, 6, 10);
+      final created = DateTime(2026, 6, 10, 12, 0);
+      final map = {
+        'prescriptionId': 'PR0001',
+        'patientId': 'SH20250001',
+        'visitId': 'SH20250001_V0001',
+        'prescriptionDate': Timestamp.fromDate(date),
+        'type': 'typed',
+        'medicines': [
+          {
+            'medicineId': 'med_1',
+            'name': 'Aspirin',
+            'dosage': '1-0-1',
+            'duration': '5 days',
+            'instruction': 'After meals',
+          }
+        ],
+        'fileUrl': null,
+        'fileType': null,
+        'additionalNotes': 'Drink water',
+        'createdAt': Timestamp.fromDate(created),
+      };
+
+      final model = PrescriptionModel.fromMap(map, 'doc_xyz');
+      expect(model.id, 'doc_xyz');
+      expect(model.prescriptionId, 'PR0001');
+      expect(model.patientId, 'SH20250001');
+      expect(model.visitId, 'SH20250001_V0001');
+      expect(model.prescriptionDate, date);
+      expect(model.type, PrescriptionType.typed);
+      expect(model.medicines.length, 1);
+      expect(model.medicines[0].name, 'Aspirin');
+      expect(model.fileUrl, isNull);
+      expect(model.fileType, isNull);
+      expect(model.additionalNotes, 'Drink water');
+      expect(model.createdAt, created);
+    });
+
+    test('PrescriptionModel parses upload/camera type and handles null safety and fallbacks', () {
+      final date = DateTime(2026, 6, 10);
+      final map = {
+        'prescriptionId': 'PR0002',
+        'patientId': 'SH20250001',
+        'visitId': 'SH20250001_V0001',
+        'prescriptionDate': Timestamp.fromDate(date),
+        'type': 'upload',
+        // medicines is missing
+        'fileUrl': 'https://example.com/prescription.pdf',
+        'fileType': 'pdf',
+        'additionalNotes': null,
+        // createdAt is missing
+      };
+
+      final model = PrescriptionModel.fromMap(map, 'doc_abc');
+      expect(model.id, 'doc_abc');
+      expect(model.type, PrescriptionType.upload);
+      expect(model.medicines, isEmpty); // fallback to empty list
+      expect(model.fileUrl, 'https://example.com/prescription.pdf');
+      expect(model.fileType, 'pdf');
+      expect(model.additionalNotes, isNull);
+      expect(model.createdAt, isNotNull); // fallback to DateTime.now()
+    });
+
+    test('PrescriptionModel handles safe enum parsing for unknown type strings', () {
+      final map = {
+        'prescriptionId': 'PR0003',
+        'patientId': 'SH20250001',
+        'visitId': 'SH20250001_V0001',
+        'type': 'unknown_type_value', // invalid enum name
+      };
+
+      final model = PrescriptionModel.fromMap(map, 'doc_def');
+      expect(model.type, PrescriptionType.typed); // defaults to typed
+    });
+
+    test('PrescriptionModel toMap serializes enum and dates correctly', () {
+      final date = DateTime(2026, 6, 10);
+      final created = DateTime(2026, 6, 10, 12, 0);
+      final model = PrescriptionModel(
+        id: 'doc_1',
+        prescriptionId: 'PR0001',
+        patientId: 'SH20250001',
+        visitId: 'SH20250001_V0001',
+        prescriptionDate: date,
+        type: PrescriptionType.camera,
+        medicines: [],
+        fileUrl: 'https://example.com/photo.jpg',
+        fileType: 'image/jpeg',
+        additionalNotes: 'Urgent',
+        createdAt: created,
+      );
+
+      final map = model.toMap();
+      expect(map['prescriptionId'], 'PR0001');
+      expect(map['patientId'], 'SH20250001');
+      expect(map['visitId'], 'SH20250001_V0001');
+      expect(map['prescriptionDate'], isA<Timestamp>());
+      expect((map['prescriptionDate'] as Timestamp).toDate(), date);
+      expect(map['type'], 'camera');
+      expect(map['medicines'], isEmpty);
+      expect(map['fileUrl'], 'https://example.com/photo.jpg');
+      expect(map['fileType'], 'image/jpeg');
+      expect(map['additionalNotes'], 'Urgent');
+      expect(map['createdAt'], isA<Timestamp>());
+      expect((map['createdAt'] as Timestamp).toDate(), created);
     });
   });
 }

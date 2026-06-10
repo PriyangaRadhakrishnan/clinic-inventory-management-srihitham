@@ -1,5 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum PrescriptionType {
+  typed,
+  upload,
+  camera,
+}
+
 class PrescribedMedicine {
   final String medicineId;
   final String name;
@@ -34,69 +40,122 @@ class PrescribedMedicine {
       'instruction': instruction,
     };
   }
+
+  PrescribedMedicine copyWith({
+    String? medicineId,
+    String? name,
+    String? dosage,
+    String? duration,
+    String? instruction,
+  }) {
+    return PrescribedMedicine(
+      medicineId: medicineId ?? this.medicineId,
+      name: name ?? this.name,
+      dosage: dosage ?? this.dosage,
+      duration: duration ?? this.duration,
+      instruction: instruction ?? this.instruction,
+    );
+  }
 }
 
 class PrescriptionModel {
-  final String id; // Firestore auto-ID
-  final String visitId; // references VisitModel.id
-  final String patientId; // references PatientModel.id
-  final String? billId; // references PatientBillModel.id
-  final DateTime date;
+  final String id;
+  final String prescriptionId;
+  final String patientId;
+  final String visitId;
+  final DateTime prescriptionDate;
+  final PrescriptionType type;
   final List<PrescribedMedicine> medicines;
+  final String? fileUrl;
+  final String? fileType;
+  final String? additionalNotes;
+  final DateTime createdAt;
 
   PrescriptionModel({
     required this.id,
-    required this.visitId,
+    required this.prescriptionId,
     required this.patientId,
-    this.billId,
-    required this.date,
+    required this.visitId,
+    required this.prescriptionDate,
+    required this.type,
     required this.medicines,
+    this.fileUrl,
+    this.fileType,
+    this.additionalNotes,
+    required this.createdAt,
   });
 
-  // Convert Map to PrescriptionModel
   factory PrescriptionModel.fromMap(Map<String, dynamic> map, String documentId) {
     final list = map['medicines'] as List? ?? [];
-    final prescribedList = list.map((item) => PrescribedMedicine.fromMap(Map<String, dynamic>.from(item))).toList();
+    final medicinesList = list
+        .map((item) => PrescribedMedicine.fromMap(Map<String, dynamic>.from(item)))
+        .toList();
+
+    final typeStr = map['type'] as String?;
+    final typeVal = PrescriptionType.values.firstWhere(
+      (e) => e.name == typeStr,
+      orElse: () => PrescriptionType.typed,
+    );
 
     return PrescriptionModel(
       id: documentId,
-      visitId: map['visitId'] ?? '',
+      prescriptionId: map['prescriptionId'] ?? '',
       patientId: map['patientId'] ?? '',
-      billId: map['billId'],
-      date: map['date'] != null 
-          ? (map['date'] as Timestamp).toDate() 
+      visitId: map['visitId'] ?? '',
+      prescriptionDate: map['prescriptionDate'] != null
+          ? (map['prescriptionDate'] as Timestamp).toDate()
           : DateTime.now(),
-      medicines: prescribedList,
+      type: typeVal,
+      medicines: medicinesList,
+      fileUrl: map['fileUrl'] as String?,
+      fileType: map['fileType'] as String?,
+      additionalNotes: map['additionalNotes'] as String?,
+      createdAt: map['createdAt'] != null
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
     );
   }
 
-  // Convert PrescriptionModel to Map
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'visitId': visitId,
+      'prescriptionId': prescriptionId,
       'patientId': patientId,
-      'billId': billId,
-      'date': Timestamp.fromDate(date),
+      'visitId': visitId,
+      'prescriptionDate': Timestamp.fromDate(prescriptionDate),
+      'type': type.name,
       'medicines': medicines.map((med) => med.toMap()).toList(),
+      'fileUrl': fileUrl,
+      'fileType': fileType,
+      'additionalNotes': additionalNotes,
+      'createdAt': Timestamp.fromDate(createdAt),
     };
   }
 
   PrescriptionModel copyWith({
     String? id,
-    String? visitId,
+    String? prescriptionId,
     String? patientId,
-    String? billId,
-    DateTime? date,
+    String? visitId,
+    DateTime? prescriptionDate,
+    PrescriptionType? type,
     List<PrescribedMedicine>? medicines,
+    String? fileUrl,
+    String? fileType,
+    String? additionalNotes,
+    DateTime? createdAt,
   }) {
     return PrescriptionModel(
       id: id ?? this.id,
-      visitId: visitId ?? this.visitId,
+      prescriptionId: prescriptionId ?? this.prescriptionId,
       patientId: patientId ?? this.patientId,
-      billId: billId ?? this.billId,
-      date: date ?? this.date,
+      visitId: visitId ?? this.visitId,
+      prescriptionDate: prescriptionDate ?? this.prescriptionDate,
+      type: type ?? this.type,
       medicines: medicines ?? this.medicines,
+      fileUrl: fileUrl ?? this.fileUrl,
+      fileType: fileType ?? this.fileType,
+      additionalNotes: additionalNotes ?? this.additionalNotes,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }

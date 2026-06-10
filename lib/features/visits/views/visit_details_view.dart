@@ -101,6 +101,44 @@ class VisitDetailsView extends StatelessWidget {
                           ? DateFormat('dd-MMM-yyyy').format(visit.followUpDate!)
                           : 'None scheduled',
                     ),
+                    const Divider(height: AppDimensions.spaceXL, color: AppColors.border),
+                    Row(
+                      children: [
+                        const Icon(Icons.receipt_long_outlined, color: AppColors.primary, size: 20),
+                        const SizedBox(width: AppDimensions.spaceM),
+                        Text(
+                          'Prescription History',
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppDimensions.spaceM),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppDimensions.spaceM),
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.info_outline, color: AppColors.outline, size: 18),
+                          SizedBox(width: AppDimensions.spaceS),
+                          Text(
+                            'No prescriptions recorded',
+                            style: TextStyle(
+                              fontSize: 14.0,
+                              color: AppColors.outline,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

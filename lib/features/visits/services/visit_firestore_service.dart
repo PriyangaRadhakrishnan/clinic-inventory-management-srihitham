@@ -70,17 +70,21 @@ class VisitFirestoreService {
     return _firestore
         .collection(FirestoreCollections.visits)
         .where('patientId', isEqualTo: patientId)
-        .orderBy('visitDate', descending: true)
         .snapshots()
         .map(
-          (snapshot) => snapshot.docs
-              .map(
-                (doc) => VisitModel.fromMap(
-                  doc.data(),
-                  doc.id,
-                ),
-              )
-              .toList(),
+          (snapshot) {
+            final visits = snapshot.docs
+                .map(
+                  (doc) => VisitModel.fromMap(
+                    doc.data(),
+                    doc.id,
+                  ),
+                )
+                .toList();
+            // Sort in memory by visitDate descending
+            visits.sort((a, b) => b.visitDate.compareTo(a.visitDate));
+            return visits;
+          },
         );
   }
 

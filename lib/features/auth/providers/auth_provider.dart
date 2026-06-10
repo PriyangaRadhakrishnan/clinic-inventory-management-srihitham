@@ -68,7 +68,7 @@ class AuthProvider extends ChangeNotifier {
       if (_useMock) {
         final role = email.toLowerCase().contains('admin') ? 'admin' : 'staff';
         await signInAsMockUser(role);
-        return true;
+        return _currentUser != null;
       }
 
       final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
@@ -102,6 +102,22 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
+    try {
+      await _auth.signInAnonymously();
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = e.message ?? "Anonymous authentication failed";
+      _currentUser = null;
+      _isLoading = false;
+      notifyListeners();
+      return;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _currentUser = null;
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
 
     await Future.delayed(const Duration(milliseconds: 500));
     final normalizedRole = role.toLowerCase() == 'admin' ? 'admin' : 'staff';
