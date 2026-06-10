@@ -19,7 +19,7 @@ class IdService {
 
       // Format: PREFIX + YYYY + Count (e.g. SH20250001 for patients, or just PREFIX+Count e.g. V1)
       if (prefix == 'SH') {
-        final year = DateTime.now().year;
+        const year = 2025;
         final paddedCount = newCount.toString().padLeft(4, '0');
         return '$prefix$year$paddedCount';
       } else {
@@ -34,4 +34,23 @@ class IdService {
   Future<String> generatePurchaseId() => generateId('purchase_bills', 'P');
   Future<String> generateSupplierId() => generateId('suppliers', 'SUP');
   Future<String> generateUserId() => generateId('users', 'U');
+
+  Future<String> generateNextId(String collectionName) async {
+    switch (collectionName) {
+      case 'patients':
+        return generatePatientId();
+      case 'visits':
+        return generateVisitId();
+      case 'patient_bills':
+        return generateBillId();
+      case 'purchase_bills':
+        return generatePurchaseId();
+      case 'suppliers':
+        return generateSupplierId();
+      case 'users':
+        return generateUserId();
+      default:
+        throw ArgumentError('Unknown collection: $collectionName');
+    }
+  }
 }

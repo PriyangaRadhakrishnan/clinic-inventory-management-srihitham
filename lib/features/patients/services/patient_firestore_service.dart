@@ -18,8 +18,10 @@ class PatientFirestoreService implements PatientRepository {
   @override
   Future<String> addPatient(PatientModel patient) async {
     final patientId = await _idService.generateNextId('patients');
-
-    final newPatient = patient.copyWith(id: patientId);
+    final newPatient = patient.copyWith(
+      id: patientId,
+      patientId: patientId,
+    );
 
     await _firestore
         .collection(FirestoreCollections.patients)

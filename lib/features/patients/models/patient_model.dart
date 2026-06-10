@@ -49,4 +49,28 @@ class PatientModel {
       'registrationDate': Timestamp.fromDate(registrationDate),
     };
   }
+
+  PatientModel copyWith({
+    String? id,
+    String? patientId,
+    String? name,
+    int? age,
+    String? gender,
+    String? phone,
+    DateTime? dateOfBirth,
+    String? address,
+    DateTime? registrationDate,
+  }) {
+    return PatientModel(
+      id: id ?? this.id,
+      patientId: patientId ?? this.patientId,
+      name: name ?? this.name,
+      age: age ?? this.age,
+      gender: gender ?? this.gender,
+      phone: phone ?? this.phone,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      address: address ?? this.address,
+      registrationDate: registrationDate ?? this.registrationDate,
+    );
+  }
 }
